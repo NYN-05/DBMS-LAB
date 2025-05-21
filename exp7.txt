@@ -1,0 +1,44 @@
+test> db.createCollection('learner')
+{ ok: 1 }
+
+test> show collections
+learner
+
+test> db.learner.insertOne({name:"john",age:20})
+{
+  acknowledged: true,
+  insertedId: ObjectId('682c88ff32214446ac4d7942')
+}
+
+test> db.learner.insertOne({name:"john",age:20})
+{
+  acknowledged: true,
+  insertedId: ObjectId('682c88ff32214446ac4d7942')
+}
+test> db.learner.find()
+[
+  { _id: ObjectId('682c88ff32214446ac4d7942'), name: 'john', age: 20 }
+]
+
+test> db.learner.updateOne({name:"john"},{$set:{age:31}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+test> db.learner.deleteOne({name:"John"})
+{ acknowledged: true, deletedCount: 0 }
+
+
+
+
+
+
+
+
+
+
+

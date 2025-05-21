@@ -1,0 +1,140 @@
+create database exp5;
+
+
+create table employee (E_id int,E_name varchar(50), age int, salary int);
+
+
+insert into employee values (1,"alice",30,50000),(2,"bob",28,45000),(3,"charlie",32,55000);
+
+
+select * from employee;
++------+---------+------+--------+
+| E_id | E_name  | age  | salary |
++------+---------+------+--------+
+|    1 | alice   |   30 |  50000 |
+|    2 | bob     |   28 |  45000 |
+|    3 | charlie |   32 |  55000 |
++------+---------+------+--------+
+
+
+delimiter //
+
+
+create procedure fetch_employee_details()
+begin
+declare v_id int;
+declare v_name varchar(50);
+declare v_age int;
+declare v_salary int;
+declare done int default 0;
+declare emp_cursor cursor for select e_id, e_name, age, salary from employee;
+declare continue handler for not found set done = 1;
+open emp_cursor;
+emp_loop: loop
+fetch emp_cursor into v_id, v_name, v_age, v_salary;
+if done then 
+leave emp_loop;
+end if;
+select concat("id: ", v_id, ", name: ", v_name, ", age: ", v_age, ", salary: ", v_salary) as employee_info;
+end loop emp_loop;
+close emp_cursor;
+end //
+
+
+delimiter ;
+
+
+call fetch_employee_details();
++--------------------------------------------+
+| employee_info                              |
++--------------------------------------------+
+| id: 1, name: alice, age: 30, salary: 50000 |
++--------------------------------------------+
+1 row in set (0.00 sec)
+
++------------------------------------------+
+| employee_info                            |
++------------------------------------------+
+| id: 2, name: bob, age: 28, salary: 45000 |
++------------------------------------------+
+1 row in set (0.01 sec)
+
++----------------------------------------------+
+| employee_info                                |
++----------------------------------------------+
+| id: 3, name: charlie, age: 32, salary: 55000 |
++----------------------------------------------+
+
+
+
+
+delimiter //
+
+
+create procedure tax_details()
+begin
+declare vid int;
+declare vname varchar(50);
+declare vage int;
+declare vsalary int;
+declare vtax int;
+declare done int default 0;
+declare emp_cur cursor for select e_id, e_name, age, salary from employee;
+declare continue handler for not found set done =1;
+open emp_cur;
+emploop:loop
+fetch emp_cur into vid,vname,vage,vsalary;
+if done then
+leave emploop;
+end if;
+if vsalary<40000 then
+set vtax =vsalary*0.05;
+elseif vsalary <70000 then
+set vtax=vsalary*0.1;
+else
+set vtax=vsalary*0.15;
+end if;
+select concat ("id: ",vid,", Name: ",vname,", Age: ",vage,", Salary: ",vsalary,", Tax: ",vtax)as Tax_details;
+end loop emploop;
+close emp_cur;
+end //
+
+
+delimiter ;
+
+
+call tax_details();
++-------------------------------------------------------+
+| Tax_details                                           |
++-------------------------------------------------------+
+| id: 1, Name: alice, Age: 30, Salary: 50000, Tax: 5000 |
++-------------------------------------------------------+
+1 row in set (0.00 sec)
+
++-----------------------------------------------------+
+| Tax_details                                         |
++-----------------------------------------------------+
+| id: 2, Name: bob, Age: 28, Salary: 45000, Tax: 4500 |
++-----------------------------------------------------+
+1 row in set (0.01 sec)
+
++---------------------------------------------------------+
+| Tax_details                                             |
++---------------------------------------------------------+
+| id: 3, Name: charlie, Age: 32, Salary: 55000, Tax: 5500 |
++---------------------------------------------------------+
+1 row in set (0.02 sec)
+
+
+
+drop procedure if exists tax_details; // only for my refreancenot in code
+
+
+
+
+
+
+
+
+
+

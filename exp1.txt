@@ -1,0 +1,43 @@
+In MySQL CLI:
+create database exp1;
+
+create user 'n1'@'localhost' identified by '1234';
+
+grant all privileges on exp1.* to 'n1'@'localhost';
+
+//after completion of exp1 
+flush privileges;
+
+
+In CMD:
+mysql -u n1 -p -h localhost
+
+show databases;
+
+use exp1;
+
+create table employee (empno int, ename varchar(50), job varchar(50),managerno int, sal decimal(10,2), commission decimal(10,2));
+
+desc employee;
+
+START TRANSACTION;
+
+insert into employee values (1,"alice","programmer",15,30788,370),(2,"Bob","Hr",12,12080,1200);
+
+select * from employee;
+
+rollback;
+
+select * from employee;
+
+insert into employee values (15,"charlie","manager",19,300788,37000);
+
+commit;
+
+alter table employee add primary key (empno) ;
+
+alter table employee modify ename varchar(100) not null;
+
+desc employee;
+
+

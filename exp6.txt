@@ -1,0 +1,46 @@
+create database exp6;
+
+use exp6;
+
+create table O_Roll_Call (id int, name varchar(50));
+create table N_Roll_Call (id int, name varchar(50));
+
+insert into O_Roll_Call values (1,"a"),(2,"b"),(3,"c");
+insert into N_Roll_Call values (4,"d"),(5,"e"),(6,"f");
+
+delimiter //
+
+create procedure merge()
+begin
+declare nid int;
+declare nname varchar(50);
+declare done int default 0;
+declare cur cursor for select id,name from N_Roll_Call;
+declare continue handler for not found set done = 1;
+open cur;
+curloop:loop
+fetch cur into nid,nname;
+if done then
+leave curloop;
+end if;
+if not exists (select 1 from O_Roll_Call where id=nid and name=nname) then insert into O_Roll_Call (id,name) values (nid,nname);
+end if;
+end loop;
+close cur;
+end//
+
+delimiter ;
+
+call merge();
+
+select * from O_Roll_Call;
++------+------+
+| id   | name |
++------+------+
+|    1 | a    |
+|    2 | b    |
+|    3 | c    |
+|    4 | d    |
+|    5 | e    |
+|    6 | f    |
++------+------+

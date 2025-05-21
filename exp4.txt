@@ -1,0 +1,129 @@
+-- Step 1: Create the customer4 table
+CREATE TABLE customer4 (
+    id INT,
+    name VARCHAR(50),
+    age INT,
+    address VARCHAR(50),
+    salary DECIMAL(10,2)
+);
+
+-- Step 2: Insert initial data into customer4
+INSERT INTO customer4 (id, name, age, address, salary)
+VALUES 
+    (1, 'rahesh', 23, 'delhi', 10000.00),
+    (2, 'kumar', 33, 'jaipur', 50000.00),
+    (3, 'nayan', 31, 'banglore', 80000.00);
+
+-- Step 3: View initial data
+SELECT * FROM customer4;
+
+-- Expected Output:
+-- +------+--------+------+----------+----------+
+-- | id   | name   | age  | address  | salary   |
+-- +------+--------+------+----------+----------+
+-- | 1    | rahesh | 23   | delhi    | 10000.00 |
+-- | 2    | kumar  | 33   | jaipur   | 50000.00 |
+-- | 3    | nayan  | 31   | banglore | 80000.00 |
+-- +------+--------+------+----------+----------+
+
+-- Step 4: Create a trigger to prevent negative age values
+DELIMITER //
+
+CREATE TRIGGER cust_t1
+BEFORE INSERT ON customer4
+FOR EACH ROW
+BEGIN
+    IF NEW.age < 0 THEN
+        SET NEW.age = 0;
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+-- Step 5: Add a primary key constraint
+ALTER TABLE customer4 ADD PRIMARY KEY (id);
+
+-- Step 6: Insert a new record with a negative age to test the trigger
+INSERT INTO customer4 VALUES (4, 'Jay', -28, 'Chennai', 45000.00);
+
+-- Step 7: View final data to confirm trigger effect
+SELECT * FROM customer4;
+
+-- Expected Output:
+-- +----+--------+------+----------+----------+
+-- | id | name   | age  | address  | salary   |
+-- +----+--------+------+----------+----------+
+-- | 1  | rahesh | 23   | delhi    | 10000.00 |
+-- | 2  | kumar  | 33   | jaipur   | 50000.00 |
+-- | 3  | nayan  | 31   | banglore | 80000.00 |
+-- | 4  | Jay    | 0    | Chennai  | 45000.00 |
+-- +----+--------+------+----------+----------+
+
+-- Step 8: Create the difference_salary table
+CREATE TABLE difference_salary (
+    diff INT
+);
+
+-- Step 9: Create a trigger to capture salary differences before update
+DELIMITER //
+
+CREATE TRIGGER cust_sal_diff
+BEFORE UPDATE ON customer4
+FOR EACH ROW
+BEGIN
+    DECLARE i INT;
+    SET i = NEW.salary - OLD.salary;
+    INSERT INTO difference_salary VALUES (i);
+END;
+//
+
+DELIMITER ;
+
+-- Step 10: Perform an update to test the salary difference trigger
+UPDATE customer4 SET salary = 55000.00 WHERE id = 1;
+
+-- Step 11: View the logged salary difference
+SELECT * FROM difference_salary;
+
+-- Expected Output:
+-- +-------+
+-- | diff  |
+-- +-------+
+-- | 45000 |
+-- +-------+
+
+-- Step 12: Create the delete_log table
+CREATE TABLE delete_log (
+    id INT,
+    name VARCHAR(50),
+    age INT,
+    address VARCHAR(50),
+    salary DECIMAL(10,2)
+);
+
+-- Step 13: Create trigger for logging deleted records
+DELIMITER //
+
+CREATE TRIGGER cust_del
+BEFORE DELETE ON customer4
+FOR EACH ROW
+BEGIN
+    INSERT INTO delete_log
+    VALUES (OLD.id, OLD.name, OLD.age, OLD.address, OLD.salary);
+END;
+//
+
+DELIMITER ;
+
+-- Step 14: Delete a record and view logged deletion
+DELETE FROM customer4 WHERE id = 3;
+
+SELECT * FROM delete_log;
+
+-- Expected Output:
+-- +------+-------+------+----------+----------+
+-- | id   | name  | age  | address  | salary   |
+-- +------+-------+------+----------+----------+
+-- | 3    | nayan | 31   | banglore | 80000.00 |
+-- +------+-------+------+----------+----------+
